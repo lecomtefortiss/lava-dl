@@ -110,7 +110,7 @@ class Neuron(base.Neuron):
         tau_grad=1, scale_grad=1, scale=1 << 6,
         norm=None, dropout=None,
         shared_param=True, persistent_state=False, requires_grad=False,
-        graded_spike=False
+        graded_spike=False, return_internal_state=False
     ):
         super(Neuron, self).__init__(
             threshold=threshold,
@@ -127,6 +127,7 @@ class Neuron(base.Neuron):
         )
 
         self.graded_spike = graded_spike
+        self.return_internal_state = return_internal_state
         # slayer dynamics and spike mechanism spike if voltage >= vth to have
         # better estimate of surrogate gradient.
         # but Loihi spikes if voltage > vth
@@ -436,5 +437,9 @@ class Neuron(base.Neuron):
             spike response of the neuron.
 
         """
-        _, voltage = self.dynamics(input)
-        return self.spike(voltage)
+        current, voltage = self.dynamics(input)
+        if self.return_internal_state:
+            return current, voltage
+        else:
+            return self.spike(voltage)
+
