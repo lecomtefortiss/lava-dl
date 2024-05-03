@@ -375,12 +375,12 @@ class Neuron(base.Neuron):
         )
 
         if self.persistent_state is True:
-            with torch.no_grad():
+            #with torch.no_grad():
                 # The state at last time step needs to be cloned. Otherwise,
                 # the previous result will be affected since
                 # it will use same memory space.
-                self.current_state = current[..., -1].clone()
-                self.voltage_state = voltage[..., -1].clone()
+            self.current_state = current[..., -1].clone()
+            self.voltage_state = voltage[..., -1].clone()
 
         return current, voltage
 
@@ -411,10 +411,14 @@ class Neuron(base.Neuron):
         )
 
         if self.persistent_state is True:
-            with torch.no_grad():
+            self.voltage_state = leaky_integrator.persistent_state(
+                self.voltage_state, spike[..., -1]
+            ).clone() 
+            """ with torch.no_grad():
                 self.voltage_state = leaky_integrator.persistent_state(
                     self.voltage_state, spike[..., -1]
-                ).detach().clone()
+                ).detach().clone() """
+            
 
         if self.drop is not None:
             spike = self.drop(spike)
