@@ -31,8 +31,10 @@ def step_delay(module, x):
         if module.delay_buffer.shape[0] != x.shape[0]:  # batch mismatch
             module.delay_buffer = None
     if persistent_state:
-        delay_buffer = 0 if module.delay_buffer is None else module.delay_buffer
+        delay_buffer = 0 if module.delay_buffer is None else module.delay_buffer 
         module.delay_buffer = x[..., -1]
+    if isinstance(x,tuple) :
+            x=x[-1]
     x = delay(x, 1)
     if persistent_state:
         x[..., 0] = delay_buffer
@@ -737,6 +739,7 @@ class AbstractConv(torch.nn.Module):
         handle.create_dataset(
             'type', (1, ), 'S10', ['conv'.encode('ascii', 'ignore')]
         )
+
         handle.create_dataset('shape', data=np.array(self.neuron.shape))
         handle.create_dataset('inChannels', data=self.synapse.in_channels)
         handle.create_dataset('outChannels', data=self.synapse.out_channels)
